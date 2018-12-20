@@ -17,13 +17,10 @@ unidad int
 
 CONSTRAINT fk_detalle_categoria
 foreign key (id_categoria) references categoria(id)
-	--on update cascade
-	--on delete cascade,
+	on update cascade
+	on delete cascade,
 )
 go
-select * from categoria;
-go
---drop table producto;
 insert into producto(id_categoria,nombre,precio,unidad) values(100000,'Crema',1.50,75);
 insert into producto(id_categoria,nombre,precio,unidad) values(100002,'XBOX360',299,15);
 insert into producto(id_categoria,nombre,precio,unidad) values(100002,'PLAY STATION 3',399,25);
@@ -31,34 +28,33 @@ insert into producto(id_categoria,nombre,precio,unidad) values(100003,'Lavadora 
 insert into producto(id_categoria,nombre,precio,unidad) values(100003,'Licuadora Osbort',40,9);
 insert into producto(id_categoria,nombre,precio,unidad) values(100001,'Cuchara',1,20);
 go
+
 create table venta(
 id int identity(1,1) primary key not null,
+id_producto int,
 monto smallmoney,
 FECHA DATETIME DEFAULT(GETDATE()) 
-)
-go
-insert into venta(monto) values(580);
---delete from venta where id=1;
-select * from producto;
-go
-create table detalle_productoventa(
-id int identity(1,1) primary key not null,
-id_venta int,
-id_producto int
 
 CONSTRAINT fk_detalle_productos
-foreign key (id_venta) references venta(id)
+foreign key (id_producto) references producto(id)
 	on update cascade
 	on delete cascade,
-CONSTRAINT fk_datalle_facturar
-foreign key(id_producto) references producto(id)
-	on update cascade
-	on delete cascade
 )
 
-insert into detalle_productoventa values(1,2);
-insert into detalle_productoventa values(1,3);
-insert into detalle_productoventa values(1,4);
---select * from categoria;
---drop table categoria;
---truncate table categoria;
+--select * from producto;
+
+insert into venta(id_producto,monto) values(8,299);
+insert into venta(id_producto,monto) values(11,40);
+insert into venta(id_producto,monto) values(9,399);
+
+select * from categoria;
+
+Select id_producto as IdProducto,monto as Monto,fecha as
+Fecha from venta
+--group by id_producto,monto
+where fecha = (select max(fecha) from venta);
+
+select id_categoria,C.nombre,P.nombre,'Q'+convert(varchar(8), monto) as Total,FECHA
+from categoria C,producto P, venta V
+where C.id=P.id_categoria and P.id = V.id_producto and fecha = (select max(fecha) from venta);
+
